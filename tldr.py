@@ -7,6 +7,9 @@ from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lsa import LsaSummarizer as Summarizer
 from sumy.nlp.stemmers import Stemmer
 from sumy.utils import get_stop_words
+import nltk
+
+nltk.download('stopwords')
 
 intents = discord.Intents.all()
 client = commands.client(command_prefix='!', intents=intents)
@@ -19,7 +22,7 @@ def sumy_lsa_summarization(url, lang="english", count=5):
     parser = HtmlParser.from_url(url, Tokenizer(lang))
     stemmer = Stemmer(lang)
     summarizer = Summarizer(stemmer)
-    summarizer.stop_words = get_stop_words(lang)
+    summarizer.stop_words = get_stop_words(lang) | set(nltk.corpus.stopwords.words(lang))
     summary = summarizer(parser.document, count)
     return "\n\n".join([str(sentence) for sentence in summary])
 
