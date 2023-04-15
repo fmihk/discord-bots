@@ -53,7 +53,7 @@ async def on_message(message):
                     f"3 months: {std_devs['3mo']['price_sd']} ({std_devs['3mo']['percentage_sd']}%) and upper price: {std_devs['3mo']['upper_price']}, lower price: {std_devs['3mo']['lower_price']}\n"
                     f"6 months: {std_devs['6mo']['price_sd']} ({std_devs['6mo']['percentage_sd']}%) and upper price: {std_devs['6mo']['upper_price']}, lower price: {std_devs['6mo']['lower_price']}\n"
                     f"1 year: {std_devs['1y']['price_sd']} ({std_devs['1y']['percentage_sd']}%) and upper price: {std_devs['1y']['upper_price']}, lower price: {std_devs['1y']['lower_price']}\n"
-                    "Disclaimer: This information is provided for educational and informational purposes only. Do not use this information as the sole basis for making investment decisions. We are not liable for any losses or damages that may arise from your use of this information.")
+                    "\nDisclaimer: This information is provided for educational and informational purposes only. Do not use this information as the sole basis for making investment decisions. We are not liable for any losses or damages that may arise from your use of this information.")
         await message.channel.send(response)
 
 client.run('DISCORD_BOT_TOKEN')
