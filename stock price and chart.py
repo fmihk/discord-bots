@@ -1,11 +1,12 @@
 import discord
-import yfinance as yf
 import requests
 import os
 
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, Request
 from datetime import datetime, timedelta
+
+ALPHAVANTAGE_API_KEY = "KEY"
 
 intents = discord.Intents.all()
 intents.members = True
@@ -24,16 +25,22 @@ async def on_message(message):
         ticker = message.content.split()[0][1:]
 
         try:
-            # Get current stock data from Yahoo Finance
-            stock_data = yf.Ticker(ticker).info
-            stock_exchange = stock_data['exchange']
-            stock_price = round(stock_data['regularMarketPrice'], 2)
-            stock_change = stock_data['regularMarketChange']
-            stock_percent_change = stock_data['regularMarketChangePercent']
-            company_name = stock_data.get('longName', f'{ticker} (Futures)')
+            # Get current stock data from AlphaVantage API
+            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={ALPHAVANTAGE_API_KEY}"
+            response = requests.get(url)
+            stock_data = response.json()["Global Quote"]
+            stock_price = float(stock_data["05. price"])
+            stock_change = float(stock_data["09. change"])
+            stock_percent_change = float(stock_data["10. change percent"].strip("%"))
+
+            # Get company name from AlphaVantage API
+            url = f"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={ticker}&apikey={ALPHAVANTAGE_API_KEY}"
+            response = requests.get(url)
+            company_data = response.json()["bestMatches"][0]
+            company_name = company_data["2. name"]
 
             # Get image from Finviz only if ticker is in US stock market
-            if stock_exchange in ['NMS', 'NYQ', 'NAS']:
+            if company_data["4. region"] == "United States":
                 url = f'https://finviz.com/chart.ashx?t={ticker}&ty=c&ta=1&p=d&s=l'
                 headers = {'User-Agent': 'Mozilla/5.0'}
                 response = requests.get(url, headers=headers)
@@ -61,7 +68,7 @@ async def on_message(message):
             if response is not None:
                 os.remove(f'{ticker}.png')
 
-        except KeyError:
+        except IndexError:
             error_message = f'Error: {ticker} is not recognized as a stock. Please try a different ticker.'
             await message.channel.send(error_message)
 
